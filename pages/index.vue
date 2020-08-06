@@ -5,21 +5,30 @@
         <h1 class="text-white">Weather App</h1>
       </span>
       <div class="header">
-        <b-form-input id="input-large" size="lg" placeholder="Tehran" class="rounded-pill" />
+        <b-form-input
+          id="input-large"
+          v-model="city"
+          size="lg"
+          placeholder="Tehran"
+          class="rounded-pill"
+          @keyup.enter="sendCity"
+        />
       </div>
       <div class="weather-container d-flex flex-column">
         <div class="weather-main d-flex flex-row justify-content-between">
           <div class="city-info d-flex flex-column pl-5 pt-3">
-            <h2 class="city-name">
-              Tehran
+            <h2 v-for="(item, dt) in weather" :key="dt" class="city-name">
+              {{ item.name }}
             </h2>
-            <span class="time-zone">September 25,2020</span>
-            <img class="main-weather-img" src="../assets/svg/003-cloudy-4.svg" alt="">
-            <span>Cloudy</span>
+            <span class="time-zone">{{ date }}</span>
+            <img v-for="(item, index) in weather" :key="index" class="main-weather-img" :src="img" alt="">
+            <span v-for="(item, id) in weather" :key="id">{{ item.weather[0].description }}</span>
           </div>
           <div class="weather-temp">
-            <p>70°</p>
-            <span>81°</span>/ <span>50°</span>
+            <p v-for="(item, base) in weather" :key="base">
+              {{ item.main.temp | FtoC }}°
+            </p>
+            <span v-for="(item, name) in weather" :key="name">{{ item.main.temp_max | FtoC }}°</span>/ <span v-for="(item, index) in weather" :key="index">{{ item.main.temp_min | FtoC }}°</span>
           </div>
         </div>
         <div class="weather-details">
@@ -46,7 +55,50 @@
 </template>
 
 <script>
-export default {}
+import axios from 'axios'
+export default {
+  filters: {
+    FtoC (value) {
+      return Math.floor(value - 273.15)
+    }
+  },
+  data () {
+    return {
+      city: '',
+      weather: [],
+      img: '',
+      date: new Date()
+    }
+  },
+  mounted () {
+    axios
+      .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
+      .then((response) => {
+        this.weather.push(response.data)
+        this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
+        console.log(this.weather)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  },
+  methods: {
+    sendCity () {
+      this.weather = []
+      axios
+        .get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=75b0312ef38365bd3c02771213293312`)
+        .then((response) => {
+          this.weather.push(response.data)
+          this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
+          console.log(this.weather)
+          console.log(this.img)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
+  }
+}
 </script>
 
 <style>
@@ -89,8 +141,8 @@ export default {}
   border-radius: 10px;
 }
 .main-weather-img{
-  height: 100px;
-  width:100px;
+  height: 150px;
+  width: 150px;
 }
 .weather-details{
   padding: 10px;
