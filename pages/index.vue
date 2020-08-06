@@ -7,19 +7,27 @@
       <div class="header">
         <b-form-input id="input-large" size="lg" placeholder="Tehran" class="rounded-pill" />
       </div>
-      <div class="weather-main d-flex flex-row">
-        <div class="city-info d-flex flex-column p-4">
-          <h2 class="city-name">
-            Tehran
-          </h2>
-          <span class="time-zone">September 25,2020</span>
-          <img class="main-weather-img" src="../assets/svg/003-cloudy-4.svg" alt="">
-          <span>Cloudy</span>
+      <div class="weather-container d-flex flex-column">
+        <div class="weather-main d-flex flex-row justify-content-between">
+          <div class="city-info d-flex flex-column pl-5 pt-3">
+            <h2 class="city-name">
+              Tehran
+            </h2>
+            <span class="time-zone">September 25,2020</span>
+            <img class="main-weather-img" src="../assets/svg/003-cloudy-4.svg" alt="">
+            <span>Cloudy</span>
+          </div>
+          <div class="weather-temp">
+            <p>70°</p>
+            <span>81°</span>/ <span>50°</span>
+          </div>
         </div>
         <div class="weather-details">
           <b-tabs content-class="mt-3">
             <b-tab title="Hourly" active>
-              <p>I'm the first tab</p>
+              <p>Now</p>
+              <img src="../assets/svg/003-cloudy-4.svg" alt="" class="weather-details-img">
+              <p>70°</p>
             </b-tab>
             <b-tab title="Daily">
               <p>I'm the second tab</p>
@@ -72,11 +80,11 @@ export default {}
 }
 .text-white{
   margin:48px auto 0px auto;
-}.weather-main{
+}.weather-container{
   color: white;
   margin:10px auto;
   width: 100%;
-  height: 382px;
+  /* height: 382px; */
   background-color: rgba(255, 255, 255, 0.096);
   border-radius: 10px;
 }
@@ -98,7 +106,24 @@ color:white ;
     border-bottom: 3px solid #fff !important;
 }
 .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
-    color: #fff;
+    color: #000;
     border:none;
+}
+.weather-temp span{
+  font-size: 48px;
+}
+.weather-temp p{
+  font-size: 100px;
+  margin: 0;
+}
+.weather-temp {
+  padding: 20px 48px;
+}
+.weather-details-img{
+  height: 50px;
+  width: 50px;
+}
+p{
+  margin: 0;
 }
 </style>
