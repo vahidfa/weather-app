@@ -11,7 +11,7 @@
           size="lg"
           placeholder="Tehran"
           class="rounded-pill"
-          @keyup.enter="sendCity"
+          @keyup.enter="newWeatherHandle"
         />
       </div>
       <div class="weather-container d-flex flex-column">
@@ -21,11 +21,11 @@
               {{ item.name }}
             </h2>
             <span class="time-zone">{{ date }}</span>
-            <img v-for="(item, index) in weather" :key="index" class="main-weather-img" :src="img" alt="">
+            <img v-for="(item, main) in weather" :key="main" class="main-weather-img" :src="img" alt="">
             <span v-for="(item, id) in weather" :key="id">{{ item.weather[0].description }}</span>
           </div>
           <div class="weather-temp">
-            <p v-for="(item, base) in weather" :key="base">
+            <p v-for="(item, index) in weather" :key="index">
               {{ item.main.temp | FtoC }}°
             </p>
             <span v-for="(item, name) in weather" :key="name">{{ item.main.temp_max | FtoC }}°</span>/ <span v-for="(item, index) in weather" :key="index">{{ item.main.temp_min | FtoC }}°</span>
@@ -33,10 +33,14 @@
         </div>
         <div class="weather-details">
           <b-tabs content-class="mt-3">
-            <b-tab title="Hourly" active>
-              <p>Now</p>
-              <img src="../assets/svg/003-cloudy-4.svg" alt="" class="weather-details-img">
-              <p>70°</p>
+            <b-tab title="Hourly" active class="d-flex flex-row">
+              <div v-for="(item, index) in hourlyList" :key="index" class="d-flex flex-column m-auto">
+                <p>
+                  {{ item.dt_txt | showHours }}
+                </p>
+                <img src="../assets/svg/003-cloudy-4.svg" alt="" class="weather-details-img">
+                <p>{{ item.main.temp | FtoC }}°</p>
+              </div>
             </b-tab>
             <b-tab title="Daily">
               <p>I'm the second tab</p>
@@ -60,6 +64,10 @@ export default {
   filters: {
     FtoC (value) {
       return Math.floor(value - 273.15)
+    },
+    showHours (value) {
+      const now = new Date(value)
+      return now.getHours() + ':' + now.getMinutes() + '0'
     }
   },
   data () {
@@ -67,7 +75,8 @@ export default {
       city: '',
       weather: [],
       img: '',
-      date: ''
+      date: '',
+      hourlyList: ''
     }
   },
   mounted () {
@@ -75,7 +84,6 @@ export default {
   },
   methods: {
     sendCity () {
-      this.weather = []
       axios
         .get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=75b0312ef38365bd3c02771213293312`)
         .then((response) => {
@@ -109,7 +117,17 @@ export default {
       const year = dateObj.getUTCFullYear()
       this.date = year + ' / ' + month + ' / ' + day
       const data = await this.getWeatherBasedOnCity(response.data)
-      console.log(data)
+      const list = data.data.list.splice(1, 5)
+      this.hourlyList = list
+      console.log(this.hourlyList)
+      console.log(data.data.list)
+    },
+    newWeatherHandle (info) {
+      this.weather = []
+      this.hourlyList = ''
+      this.sendCity()
+      this.getWeatherBasedOnCity(info)
+      this.getCurrentWithHourlyForStartUp()
     }
   }
 }
