@@ -67,20 +67,11 @@ export default {
       city: '',
       weather: [],
       img: '',
-      date: new Date()
+      date: ''
     }
   },
   mounted () {
-    axios
-      .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
-      .then((response) => {
-        this.weather.push(response.data)
-        this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
-        console.log(this.weather)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+    this.getWeather()
   },
   methods: {
     sendCity () {
@@ -92,6 +83,22 @@ export default {
           this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
           console.log(this.weather)
           console.log(this.img)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
+    getWeather () {
+      axios
+        .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
+        .then((response) => {
+          this.weather.push(response.data)
+          this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
+          const dateObj = new Date()
+          const month = dateObj.getUTCMonth() + 1
+          const day = dateObj.getUTCDate()
+          const year = dateObj.getUTCFullYear()
+          this.date = year + ' / ' + month + ' / ' + day
         })
         .catch((error) => {
           console.log(error)
