@@ -87,10 +87,8 @@ export default {
       axios
         .get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=75b0312ef38365bd3c02771213293312`)
         .then((response) => {
-          this.weather.push(response.data)
+          this.weather = [response.data]
           this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
-          console.log(this.weather)
-          console.log(this.img)
         })
         .catch((error) => {
           console.log(error)
@@ -109,7 +107,7 @@ export default {
     },
     async getCurrentWithHourlyForStartUp () {
       const response = await this.getWeather()
-      this.weather.push(response.data)
+      this.weather = [response.data]
       this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
       const dateObj = new Date()
       const month = dateObj.getUTCMonth() + 1
@@ -122,11 +120,8 @@ export default {
       console.log(this.hourlyList)
       console.log(data.data.list)
     },
-    newWeatherHandle (info) {
-      this.weather = []
-      this.hourlyList = ''
+    newWeatherHandle () {
       this.sendCity()
-      this.getWeatherBasedOnCity(info)
       this.getCurrentWithHourlyForStartUp()
     }
   }
