@@ -93,6 +93,15 @@
         </div>
       </div>
     </div>
+    <div v-if="loading" class="loading">
+      <div class="spinner">
+        <div class="rect1" />
+        <div class="rect2" />
+        <div class="rect3" />
+        <div class="rect4" />
+        <div class="rect5" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -122,7 +131,8 @@ export default {
       hourlyList: '',
       dailyList: '',
       showHoure: true,
-      showDaily: false
+      showDaily: false,
+      loading: true
     }
   },
   mounted () {
@@ -155,6 +165,7 @@ export default {
       const daily = data.data.list
       this.dailyList = daily
       this.hourlyList = hourly
+      this.loading = false
       // console.log(this.hourlyIcon)
       console.log(this.hourlyList)
       console.log(this.dailyList)
@@ -183,11 +194,10 @@ export default {
   padding: 0px;
 }
 .main-app{
-  overflow: hidden;
-  height: 100%;
+  height: 110vh;
   background: url('../assets/pic/weather.PNG') no-repeat;
   background-size: 100% 100%;
-  object-fit: fill;
+  object-fit: cover;
 
 }
 #input-large{
@@ -257,5 +267,65 @@ p{
 .hourly span {
   padding-left: 20px;
   cursor: pointer;
+}
+.spinner {
+  margin:20% auto;
+  width: 50%;
+  height: 10%;
+  text-align: center;
+  font-size: 10px;
+}
+
+.spinner > div {
+  background-color: #333;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
+
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }
+  20% { -webkit-transform: scaleY(1.0) }
+}
+
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% {
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
+.loading {
+  margin: auto;
+  top: 0px;
+  position: fixed;
+  width: 100%;
+  height: 1000px;
+  background-color: blueviolet;
 }
 </style>
