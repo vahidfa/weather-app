@@ -71,7 +71,7 @@ export default {
     }
   },
   mounted () {
-    this.getWeather()
+    this.getCurrentWithHourlyForStartUp()
   },
   methods: {
     sendCity () {
@@ -89,20 +89,27 @@ export default {
         })
     },
     getWeather () {
-      axios
-        .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
-        .then((response) => {
-          this.weather.push(response.data)
-          this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
-          const dateObj = new Date()
-          const month = dateObj.getUTCMonth() + 1
-          const day = dateObj.getUTCDate()
-          const year = dateObj.getUTCFullYear()
-          this.date = year + ' / ' + month + ' / ' + day
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+      try {
+        return axios
+          .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
+      } catch (error) {
+      }
+    },
+    getWeatherBasedOnCity (info) {
+      return axios
+        .get(`https://api.openweathermap.org/data/2.5/forecast?q=${info.name}&appid=75b0312ef38365bd3c02771213293312`)
+    },
+    async getCurrentWithHourlyForStartUp () {
+      const response = await this.getWeather()
+      this.weather.push(response.data)
+      this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
+      const dateObj = new Date()
+      const month = dateObj.getUTCMonth() + 1
+      const day = dateObj.getUTCDate()
+      const year = dateObj.getUTCFullYear()
+      this.date = year + ' / ' + month + ' / ' + day
+      const data = await this.getWeatherBasedOnCity(response.data)
+      console.log(data)
     }
   }
 }
