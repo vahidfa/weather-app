@@ -9,9 +9,9 @@
           id="input-large"
           v-model="city"
           size="lg"
-          placeholder="Tehran"
+          placeholder="Please write name of country or city and press 'Enter'"
           class="rounded-pill"
-          @keyup.enter="newWeatherHandle"
+          @keyup.enter="getNewWeather"
         />
       </div>
       <div class="weather-container d-flex flex-column">
@@ -21,7 +21,7 @@
               {{ item.name }}
             </h2>
             <span class="time-zone">{{ date }}</span>
-            <img v-for="(item, main) in weather" :key="main" class="main-weather-img" :src="img" alt="">
+            <img v-for="(item, main) in weather" :key="main" class="main-weather-img" :src="mainWeatherIcon" alt="">
             <span v-for="(item, id) in weather" :key="id">{{ item.weather[0].description }}</span>
           </div>
           <div class="weather-temp">
@@ -32,26 +32,64 @@
           </div>
         </div>
         <div class="weather-details">
-          <b-tabs content-class="mt-3">
-            <b-tab title="Hourly" active class="d-flex flex-row">
-              <div v-for="(item, index) in hourlyList" :key="index" class="d-flex flex-column m-auto">
-                <p>
-                  {{ item.dt_txt | showHours }}
-                </p>
-                <img src="../assets/svg/003-cloudy-4.svg" alt="" class="weather-details-img">
-                <p>{{ item.main.temp | FtoC }}°</p>
-              </div>
-            </b-tab>
-            <b-tab title="Daily">
-              <p>I'm the second tab</p>
-            </b-tab>
-            <b-tab title="Details">
-              <p>I'm a disabled tab!</p>
-            </b-tab>
-            <b-tab title="Precpitation">
-              <p>I'm a Precpitation tab!</p>
-            </b-tab>
-          </b-tabs>
+          <!-- <b-tabs content-class="mt-3"> -->
+          <div class="hourly d-flex flex-row">
+            <span @click="showHourlyTab">Hourly</span>
+            <span @click="showDailyTab">Daily</span>
+          </div>
+          <div v-if="showHoure" key="data" title="Hourly" active class="d-flex flex-row">
+            <div v-for="data in hourlyList" :key="data.cod" class="d-flex flex-column m-auto">
+              <p>
+                {{ data.dt_txt | showHours }}
+              </p>
+              <img v-for="img in data.weather" :key="img.name" :src="`http://openweathermap.org/img/wn/${img.icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ data.main.temp | FtoC }}°</p>
+            </div>
+          </div>
+          <div v-if="showDaily" key="item" title="Daily" class="d-flex flex-row">
+            <div class="d-flex flex-column m-auto">
+              <p>
+                {{ dailyList[5].dt_txt | showDate }}
+              </p>
+              <img :src="`http://openweathermap.org/img/wn/${dailyList[5].weather[0].icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ dailyList[5].main.temp | FtoC }}°</p>
+            </div>
+            <div class="d-flex flex-column m-auto">
+              <p>
+                {{ dailyList[11].dt_txt | showDate }}
+              </p>
+              <img :src="`http://openweathermap.org/img/wn/${dailyList[11].weather[0].icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ dailyList[11].main.temp | FtoC }}°</p>
+            </div>
+            <div class="d-flex flex-column m-auto">
+              <p>
+                {{ dailyList[17].dt_txt | showDate }}
+              </p>
+              <img :src="`http://openweathermap.org/img/wn/${dailyList[17].weather[0].icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ dailyList[17].main.temp | FtoC }}°</p>
+            </div>
+            <div class="d-flex flex-column m-auto">
+              <p>
+                {{ dailyList[23].dt_txt | showDate }}
+              </p>
+              <img :src="`http://openweathermap.org/img/wn/${dailyList[23].weather[0].icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ dailyList[23].main.temp | FtoC }}°</p>
+            </div>
+            <div class="d-flex flex-column m-auto">
+              <p>
+                {{ dailyList[29].dt_txt | showDate }}
+              </p>
+              <img :src="`http://openweathermap.org/img/wn/${dailyList[29].weather[0].icon}@2x.png`" alt="" class="weather-details-img">
+              <p>{{ dailyList[29].main.temp | FtoC }}°</p>
+            </div>
+          </div>
+          <b-tab title="Details">
+            <p>I'm a disabled tab!</p>
+          </b-tab>
+          <b-tab title="Precpitation">
+            <p>I'm a Precpitation tab!</p>
+          </b-tab>
+          <!-- </b-tabs> -->
         </div>
       </div>
     </div>
@@ -68,36 +106,34 @@ export default {
     showHours (value) {
       const now = new Date(value)
       return now.getHours() + ':' + now.getMinutes() + '0'
+    },
+    showDate (value) {
+      const now = new Date(value)
+      return now.getFullYear() + '/' + now.getMonth() + '/' + now.getDate()
     }
   },
   data () {
     return {
-      city: '',
+      city: 'tehran',
       weather: [],
-      img: '',
+      mainWeatherIcon: '',
+      hourlyIcon: '',
       date: '',
-      hourlyList: ''
+      hourlyList: '',
+      dailyList: '',
+      showHoure: true,
+      showDaily: false
     }
   },
   mounted () {
-    this.getCurrentWithHourlyForStartUp()
+    this.getCurrentWithHourly()
+    this.getWeather()
   },
   methods: {
-    sendCity () {
-      axios
-        .get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=75b0312ef38365bd3c02771213293312`)
-        .then((response) => {
-          this.weather = [response.data]
-          this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    },
     getWeather () {
       try {
         return axios
-          .get('https://api.openweathermap.org/data/2.5/weather?q=Tehran&appid=75b0312ef38365bd3c02771213293312')
+          .get(`https://api.openweathermap.org/data/2.5/weather?q=${this.city}&appid=75b0312ef38365bd3c02771213293312`)
       } catch (error) {
       }
     },
@@ -105,24 +141,35 @@ export default {
       return axios
         .get(`https://api.openweathermap.org/data/2.5/forecast?q=${info.name}&appid=75b0312ef38365bd3c02771213293312`)
     },
-    async getCurrentWithHourlyForStartUp () {
+    async getCurrentWithHourly () {
       const response = await this.getWeather()
       this.weather = [response.data]
-      this.img = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
+      this.mainWeatherIcon = 'http://openweathermap.org/img/wn/' + response.data.weather[0].icon + '@2x.png'
       const dateObj = new Date()
       const month = dateObj.getUTCMonth() + 1
       const day = dateObj.getUTCDate()
       const year = dateObj.getUTCFullYear()
       this.date = year + ' / ' + month + ' / ' + day
       const data = await this.getWeatherBasedOnCity(response.data)
-      const list = data.data.list.splice(1, 5)
-      this.hourlyList = list
+      const hourly = data.data.list.splice(1, 5)
+      const daily = data.data.list
+      this.dailyList = daily
+      this.hourlyList = hourly
+      // console.log(this.hourlyIcon)
       console.log(this.hourlyList)
-      console.log(data.data.list)
+      console.log(this.dailyList)
     },
-    newWeatherHandle () {
-      this.sendCity()
-      this.getCurrentWithHourlyForStartUp()
+    getNewWeather (info) {
+      this.getWeatherBasedOnCity(info)
+      this.getCurrentWithHourly()
+    },
+    showDailyTab () {
+      this.showDaily = true
+      this.showHoure = false
+    },
+    showHourlyTab () {
+      this.showDaily = false
+      this.showHoure = true
     }
   }
 }
@@ -148,7 +195,7 @@ export default {
   background-color: white !important;
   background: url('../assets/svg/search.svg') 20px 10px no-repeat;
   background-size: 25px 25px;
-  width: 60%;
+  width: 70%;
   margin: auto;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
 
@@ -189,14 +236,11 @@ color:white ;
     border:none;
 }
 .weather-temp span{
-  font-size: 48px;
+  font-size: 30px;
 }
 .weather-temp p{
-  font-size: 100px;
+  font-size: 80px;
   margin: 0;
-}
-.weather-temp {
-  padding: 20px 48px;
 }
 .weather-details-img{
   height: 50px;
@@ -204,5 +248,14 @@ color:white ;
 }
 p{
   margin: 0;
+}
+.hourly{
+  width: 100%;
+  border-bottom: 2px solid #fff;
+  margin-bottom: 10px ;
+}
+.hourly span {
+  padding-left: 20px;
+  cursor: pointer;
 }
 </style>
